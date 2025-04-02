@@ -1,3 +1,10 @@
+// src/main.rs
+mod cli;
+
+use clap::Parser;
+use cli::args::Args;
+
 fn main() {
-    println!("Hello, world!");
+    let args = Args::parse();
+    args.command.execute();
 }
