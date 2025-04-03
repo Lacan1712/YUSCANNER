@@ -12,17 +12,14 @@ pub struct Args {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Lista interfaces de rede
+    /// Comando para listar interfaces de rede
     List(Box<commands::list::ListArgs>),
-    // Outros comandos...
 }
 
-// Implementação para executar qualquer comando
 impl Commands {
     pub fn execute(&self) {
         match self {
             Commands::List(cmd) => cmd.execute(),
-            // Outros comandos...
         }
     }
 }
