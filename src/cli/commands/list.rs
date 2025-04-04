@@ -1,7 +1,8 @@
 // src/cli/commands/list.rs
-use crate::cli::command::Command;
+use crate::cli::{command::Command, services::network::interfaces::InterfacesTrait};
 use clap::Args;
-use pnet::datalink;
+use crate::cli::services::network::interfaces::InterfaceService;
+
 
 #[derive(Args)]
 pub struct ListArgs {
@@ -15,41 +16,23 @@ pub struct ListArgs {
 }
 
 impl Command for ListArgs {
-    fn execute(&self) {        
-
-        let all_interfaces = datalink::interfaces();
-        
-        match &self.interfaces {
+    fn execute(&self) {
+        let service = InterfaceService::new();
+        let interfaces = match &self.interfaces {
             Some(filter_names) => {
                 println!("Filtrando pelas interfaces: {:?}", filter_names);
-                
-                for interface in all_interfaces {
-                    if filter_names.contains(&interface.name) {
-                        self.print_interface_details(&interface);
-                    }
-                }
+                service.filter_by_names(filter_names)
             },
             None => {
                 println!("Listando todas as interfaces:");
-                
-                for interface in all_interfaces {
-                    self.print_interface_details(&interface);
-                }
+                service.list_all()
             }
+        };
+
+        for interface in interfaces {
+            println!("{}", service.display_interface(&interface, self.verbose));
+
         }
     }
 }
 
-impl ListArgs {
-    /// Método auxiliar para imprimir detalhes da interface
-    fn print_interface_details(&self, interface: &datalink::NetworkInterface) {
-        if self.verbose {
-            println!("\nInterface: {}", interface.name);
-            println!("  MAC: {}", interface.mac.unwrap_or_default());
-            println!("  IPs: {:?}", interface.ips);
-            println!("  Descrição: {}", interface.description);
-        } else {
-            println!("- {}", interface.name);
-        }
-    }
-}
