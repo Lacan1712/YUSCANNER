@@ -1,10 +1,8 @@
-// src/network/interfaces.rs
-
-// Não precisa mais do use pnet::datalink aqui (opcional)
+use pcap::Device;
 
 pub trait InterfacesTrait {
     type NetworkInterface;
-    
+
     fn new() -> Self;
     fn list_all(&self) -> Vec<Self::NetworkInterface>;
     fn filter_by_names(&self, names: &[String]) -> Vec<Self::NetworkInterface>;
@@ -14,31 +12,30 @@ pub trait InterfacesTrait {
 pub struct InterfaceService;
 
 impl InterfacesTrait for InterfaceService {
-    type NetworkInterface = pnet::datalink::NetworkInterface;
-    
+    type NetworkInterface = Device;
+
     fn new() -> Self {
         Self
     }
 
     fn list_all(&self) -> Vec<Self::NetworkInterface> {
-        pnet::datalink::interfaces()
+        Device::list().expect("Não foi possível listar interfaces")
     }
 
     fn filter_by_names(&self, names: &[String]) -> Vec<Self::NetworkInterface> {
-        pnet::datalink::interfaces()
+        Device::list()
+            .expect("Não foi possível listar interfaces")
             .into_iter()
-            .filter(|iface| names.contains(&iface.name))
+            .filter(|dev| names.contains(&dev.name))
             .collect()
     }
 
     fn display_interface(&self, interface: &Self::NetworkInterface, verbose: bool) -> String {
         if verbose {
             format!(
-                "\nInterface: {}\n  MAC: {}\n  IPs: {:?}\n  Descrição: {}",
+                "\nInterface: {}\n  Descrição: {:?}",
                 interface.name,
-                interface.mac.unwrap_or_default(),
-                interface.ips,
-                interface.description
+                interface.desc
             )
         } else {
             format!("- {}", interface.name)

@@ -1,6 +1,5 @@
 // src/main.rs
 mod cli;
-
 use clap::Parser;
 use cli::args::Args;
 

@@ -14,12 +14,16 @@ pub struct Args {
 pub enum Commands {
     /// Comando para listar interfaces de rede
     List(Box<commands::list::ListArgs>),
+
+    /// Comando para escutar pacotes de rede
+    Watch(Box<commands::watch::WatchArgs>),
 }
 
 impl Commands {
     pub fn execute(&self) {
         match self {
             Commands::List(cmd) => cmd.execute(),
+            Commands::Watch(cmd) => cmd.execute()
         }
     }
 }
