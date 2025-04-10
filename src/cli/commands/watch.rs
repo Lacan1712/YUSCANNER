@@ -9,9 +9,10 @@ pub struct WatchArgs {
     #[clap(short, long)]
     pub interface: String,
     
-    /// Mostrar detalhes técnicos
+    
+    /// Filtro do tipo BPM como "tcp port 80"
     #[clap(short, long)]
-    pub verbose: bool,
+    pub filter: Option<String>,
 }
 
 
@@ -20,7 +21,19 @@ impl Command for WatchArgs {
     fn execute(&self) {
         let packages_services = PackagesService::new();
 
-        packages_services.watch_interface(&self.interface);
+        match self.filter.as_deref() {
+            Some(f) if f.contains("tcp") => {
+                println!("Filtro TCP: {}", f);
+                packages_services.watch_interface_by_filter(&self.interface, &self.filter)
+            },
+            Some(f) => {
+                println!("Filtro: {}", f)
+            },
+            None => {
+                packages_services.watch_interface(&self.interface)
+            }
+        }
+
     }
 }
 
