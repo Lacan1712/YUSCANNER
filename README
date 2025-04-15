@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Um utilitário CLI escrito em Rust que captura e analisa pacotes de rede utilizando a biblioteca `pcap`. Ideal para monitoramento e debugging de redes em ambientes Unix-like.
+Um utilitário CLI escrito em Rust que captura e analisa pacotes de rede utilizando a biblioteca `pcap`. Ideal para monitoramento e debugging de redes em ambientes Unix-like e Windows.
 
 ## Sobre o Projeto
 
@@ -30,6 +30,10 @@ Estas instruções vão te ajudar a configurar o projeto localmente.
 ### Pré-requisitos
 
 - Rust instalado ([rustup.rs](https://rustup.rs/))
+
+#### Específico para Windows
+
+No Windows é necessário instalar o [Npcap](https://npcap.com/#download), sucessor do WinPcap, para que a biblioteca pcap funcione corretamente.
 
 ### Instalação
 
