@@ -22,12 +22,9 @@ impl Command for WatchArgs {
         let packages_services = PackagesService::new();
 
         match self.filter.as_deref() {
-            Some(f) if f.contains("tcp") => {
-                println!("Filtro TCP: {}", f);
-                packages_services.watch_interface_by_filter(&self.interface, &self.filter)
-            },
             Some(f) => {
-                println!("Filtro: {}", f)
+                println!("Filtro: {}", f);
+                packages_services.watch_interface_by_filter(&self.interface, &self.filter)
             },
             None => {
                 packages_services.watch_interface(&self.interface)
