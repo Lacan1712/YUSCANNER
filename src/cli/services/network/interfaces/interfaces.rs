@@ -1,5 +1,5 @@
 use pcap::Device;
-
+use regex::Regex;
 pub trait InterfacesTrait {
     type NetworkInterface;
 
@@ -23,10 +23,12 @@ impl InterfacesTrait for InterfaceService {
     }
 
     fn filter_by_names(&self, names: &[String]) -> Vec<Self::NetworkInterface> {
+        let regex = Regex::new(&format!("(?i){:?}", names)).expect("Regex inválido");
+
         Device::list()
             .expect("Não foi possível listar interfaces")
             .into_iter()
-            .filter(|dev| names.contains(&dev.name))
+            .filter(|dev| regex.is_match(&dev.name))
             .collect()
     }
 
