@@ -1,5 +1,5 @@
-BINARY_NAME=analizer_packages
-BINARY_ALIAS=apkg
+BINARY_NAME=uscanner
+BINARY_ALIAS=uscanner
 TARGET=target/release/$(BINARY_NAME)
 INSTALL_PATH=/usr/local/bin/$(BINARY_ALIAS)
 
