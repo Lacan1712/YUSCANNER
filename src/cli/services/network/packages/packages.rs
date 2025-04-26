@@ -1,8 +1,7 @@
 use etherparse::PacketHeaders;
 use pcap::{Capture, Device, Error as PcapError};
-use std::time::Duration;
 use std::thread;
-
+use std::time::Duration;
 
 pub trait PackagesTrait {
     fn watch_interface(&self, name_interface: &str);
@@ -13,6 +12,50 @@ pub trait PackagesTrait {
 pub struct PackagesService;
 
 impl PackagesService {
+    fn read_qname(buf: &[u8]) -> Result<String, &'static str> {
+        if buf.len() < 13 {
+            return Err("mensagem muito curta");
+        }
+
+        let mut pos = 12;
+        let mut labels = Vec::new();
+        let mut jumped = false;
+        let mut hops = 0;
+
+        loop {
+            let len = *buf.get(pos).ok_or("fim prematuro")? as usize;
+            if len == 0 {
+
+                if !jumped {
+                    pos += 1
+                }
+                break;
+            }
+
+            if len & 0b1100_0000 == 0b1100_0000 {
+                if hops > 4 {
+                    return Err("loop de ponteiros");
+                }
+                let b2 = *buf.get(pos + 1).ok_or("ptr truncado")? as usize;
+                let off = ((len & 0x3F) << 8) | b2;
+                pos = off;
+                jumped = true;
+                hops += 1;
+                continue;
+            }
+            let label = buf.get(pos + 1..pos + 1 + len).ok_or("label truncado")?;
+            labels.push(
+                std::str::from_utf8(label)
+                    .map_err(|_| "utf8 inválido")?
+                    .to_owned(),
+            );
+            if !jumped {
+                pos += 1 + len;
+            }
+        }
+        Ok(labels.join("."))
+    }
+
     fn search_device_name(&self, name_interface: &str) -> Device {
         Device::list()
             .expect("Falha ao listar interfaces")
@@ -36,13 +79,13 @@ impl PackagesService {
     fn run_loop(&self, mut cap: Capture<pcap::Active>) {
         loop {
             match cap.next() {
-                // Sem pacotes que passem no filtro no momento → continua
+
                 Err(PcapError::TimeoutExpired) | Err(PcapError::NoMorePackets) => {
                     thread::sleep(Duration::from_millis(5));
                     continue;
                 }
 
-                // Demais erros → encerra
+
                 Err(e) => {
                     eprintln!("❌ Erro na captura: {e:?}");
                     break;
@@ -139,6 +182,9 @@ impl PackagesService {
                             }
                             etherparse::PayloadSlice::Udp(data) => {
                                 println!("   🔸 UDP Payload: {} bytes", data.len());
+                                if let Ok(qname) = Self::read_qname(data) {
+                                    println!("   🔸 DNS QNAME: {}", qname);
+                                }
                                 println!("   🔸 Hex: {:02X?}", data);
                             }
                             etherparse::PayloadSlice::Icmpv4(data) => {
@@ -172,7 +218,10 @@ impl PackagesTrait for PackagesService {
         let device = self.search_device_name(name_interface);
         let cap = self.build_capture(device);
 
-        println!("Escutando pacotes na interface '{}' (sem filtro)…\n", name_interface);
+        println!(
+            "Escutando pacotes na interface '{}' (sem filtro)…\n",
+            name_interface
+        );
         self.run_loop(cap);
     }
 
