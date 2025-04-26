@@ -2,6 +2,8 @@
 name = "uscanner"
 version = "0.1.0"
 edition = "2024"
+authors = ["Rodrigo Lacan Barbosa Costa <lacan.xrl80@gmail.com>"]
+license = "MIT"
 
 [dependencies]
 pcap = "0.8"
@@ -9,3 +11,13 @@ anyhow = "1.0"
 clap = { version = "4.0", features = ["derive"] }
 etherparse = "0.17"
 regex = "1.11.1"
+
+[package.metadata.deb]
+name = "uscanner"
+maintainer = "Rodrigo Lacan Barbosa Costa <lacan.xrl80@gmail.com>"
+depends = "libc6 (>= 2.27)"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/uscanner", "/usr/bin/uscanner", "755"],
+]
