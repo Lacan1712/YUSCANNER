@@ -25,10 +25,6 @@ impl PackagesService {
         loop {
             let len = *buf.get(pos).ok_or("fim prematuro")? as usize;
             if len == 0 {
-
-                if !jumped {
-                    pos += 1
-                }
                 break;
             }
 
