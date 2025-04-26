@@ -264,6 +264,7 @@ dependencies = [
  "clap",
  "etherparse",
  "pcap",
+ "regex",
 ]
 
 [[package]]
